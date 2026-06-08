@@ -1,0 +1,11 @@
+# .gitignore
+.env
+serviceAccountKey.json   # NEVER commit this
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+.DS_Store
+*.log
+/venv
+/env
