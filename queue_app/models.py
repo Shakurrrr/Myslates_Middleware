@@ -77,3 +77,16 @@ class SyncLog(models.Model):
 
     class Meta:
         ordering = ["-attempted_at"]
+
+class SyncState(models.Model):
+    """
+    Tracks the last successful sync timestamp per collection.
+    Used to determine what changed since the last poll.
+    """
+    collection   = models.CharField(max_length=100, unique=True)
+    last_synced  = models.DateTimeField(null=True, blank=True)
+    last_count   = models.IntegerField(default=0)
+    updated_at   = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.collection} — last synced: {self.last_synced}"

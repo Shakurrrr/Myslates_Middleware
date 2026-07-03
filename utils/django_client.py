@@ -1,4 +1,3 @@
-# utils/django_client.py
 import requests
 from django.conf import settings
 from utils.logger import get_logger
@@ -13,7 +12,46 @@ class DjangoAPIClient:
     Uses SimpleJWT for authentication.
     """
 
-    # Create endpoints — where POST requests go
+    # Sync endpoints — for polling changes (Django → Firestore)
+    SYNC_ENDPOINTS = {
+        # Auth
+        "users":              "/auth/sync/users/",
+        "students":           "/auth/sync/students/",
+        "teachers":           "/auth/sync/teachers/",
+        "parents":            "/auth/sync/parents/",
+        # Academics
+        "schools":            "/academics/sync/schools/",
+        "classes":            "/academics/sync/classes/",
+        "subjects":           "/academics/sync/subjects/",
+        "topics":             "/academics/sync/topics/",
+        # Assignments
+        "assignments":        "/assignments/sync/assignments/",
+        "submissions":        "/assignments/sync/submissions/",
+        # Attendance
+        "attendance":         "/attendance/sync/",
+        # Communication
+        "announcements":      "/communication/sync/announcements/",
+        "results":            "/communication/sync/results/",
+        "notifications":      "/communication/sync/notifications/",
+        # Gamification
+        "achievements":       "/gamification/sync/achievements/",
+        "games":              "/gamification/sync/games/",
+        "multiplayer_games":  "/gamification/sync/multiplayer-games/",
+        "avatar_sounds":      "/gamification/sync/avatar-sounds/",
+        # Chat
+        "chats":              "/chat/sync/chats/",
+        "communications":     "/chat/sync/communications/",
+        "discussions":        "/chat/sync/discussions/",
+        "messages":           "/chat/sync/messages/",
+        # Modules
+        "fees":               "/modules/sync/fees/",
+        "subscriptions":      "/modules/sync/subscriptions/",
+        "cbt_exams":          "/modules/sync/cbt-exams/",
+        "practice_quizzes":   "/modules/sync/practice-quizzes/",
+        "mock_results":       "/modules/sync/mock-results/",
+    }
+
+    # Write endpoints — for client → Django sync (kept for future use)
     CREATE_ENDPOINTS = {
         "schools":       "/academics/schools/create/",
         "classes":       "/academics/classes/create/",
@@ -33,7 +71,6 @@ class DjangoAPIClient:
         "cbt_exams":     "/modules/cbt-exams/create/",
     }
 
-    # Base endpoints — where list/detail/update/delete requests go
     BASE_ENDPOINTS = {
         "schools":       "/academics/schools/",
         "classes":       "/academics/classes/",
@@ -71,9 +108,6 @@ class DjangoAPIClient:
 
     @classmethod
     def authenticate(cls, email: str, password: str) -> "DjangoAPIClient":
-        """
-        Log in to the MySlates backend and return an authenticated client.
-        """
         base_url = settings.DJANGO_API_BASE_URL
         res = requests.post(
             f"{base_url}/auth/login/",
@@ -94,17 +128,35 @@ class DjangoAPIClient:
 
     @classmethod
     def from_settings(cls) -> "DjangoAPIClient":
-        """
-        Authenticate using credentials stored in .env.
-        This is what the sync engine calls automatically.
-        """
         return cls.authenticate(
             email    = settings.MYSLATES_SERVICE_EMAIL,
             password = settings.MYSLATES_SERVICE_PASSWORD,
         )
 
+    def get_changes(self, collection: str, updated_after: str = None):
+        """
+        Poll a sync endpoint for records changed since updated_after.
+        Returns a list of records.
+        """
+        path = self.SYNC_ENDPOINTS.get(collection)
+        if not path:
+            raise DjangoAPIError(f"No sync endpoint for collection: {collection}")
+
+        url    = f"{self.base_url}{path}"
+        params = {}
+        if updated_after:
+            params["updated_after"] = updated_after
+
+        res = self.session.get(url, params=params)
+        self._raise_for_status(res, "POLL", collection)
+
+        data = res.json()
+        # Handle both paginated and non-paginated responses
+        if isinstance(data, dict):
+            return data.get("results", [])
+        return data
+
     def create(self, collection: str, payload: dict) -> dict:
-        """POST to /<collection>/create/"""
         path = self.CREATE_ENDPOINTS.get(collection)
         if not path:
             raise DjangoAPIError(f"No create endpoint for collection: {collection}")
@@ -114,7 +166,6 @@ class DjangoAPIClient:
         return res.json()
 
     def update(self, collection: str, pk: str, payload: dict) -> dict:
-        """PATCH to /<collection>/<pk>/update/"""
         base = self.BASE_ENDPOINTS.get(collection)
         if not base:
             raise DjangoAPIError(f"Unknown collection: {collection}")
@@ -124,7 +175,6 @@ class DjangoAPIClient:
         return res.json()
 
     def delete(self, collection: str, pk: str) -> None:
-        """DELETE to /<collection>/<pk>/delete/"""
         base = self.BASE_ENDPOINTS.get(collection)
         if not base:
             raise DjangoAPIError(f"Unknown collection: {collection}")
@@ -133,7 +183,6 @@ class DjangoAPIClient:
         self._raise_for_status(res, "DELETE", collection)
 
     def get(self, collection: str, pk: str) -> dict:
-        """GET to /<collection>/<pk>/"""
         base = self.BASE_ENDPOINTS.get(collection)
         if not base:
             raise DjangoAPIError(f"Unknown collection: {collection}")

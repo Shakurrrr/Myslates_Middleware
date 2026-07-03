@@ -76,9 +76,13 @@ CELERY_ACCEPT_CONTENT  = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
 CELERY_BEAT_SCHEDULE = {
-    "flush-sync-queue": {
+    "poll-django-to-firestore": {
+        "task":     "tasks.celery_tasks.poll_django_to_firestore",
+        "schedule": 300.0,   # every 5 minutes
+    },
+    "flush-pending-ops": {
         "task":     "tasks.celery_tasks.flush_pending_ops",
-        "schedule": 60.0,
+        "schedule": 60.0,    # every 60 seconds
     },
     "retry-dead-letter": {
         "task":     "tasks.celery_tasks.retry_dead_letter",
