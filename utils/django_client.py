@@ -14,41 +14,30 @@ class DjangoAPIClient:
 
     # Sync endpoints — for polling changes (Django → Firestore)
     SYNC_ENDPOINTS = {
-        # Auth
-        "users":              "/auth/sync/users/",
-        "students":           "/auth/sync/students/",
-        "teachers":           "/auth/sync/teachers/",
-        "parents":            "/auth/sync/parents/",
-        # Academics
-        "schools":            "/academics/sync/schools/",
-        "classes":            "/academics/sync/classes/",
-        "subjects":           "/academics/sync/subjects/",
-        "topics":             "/academics/sync/topics/",
-        # Assignments
-        "assignments":        "/assignments/sync/assignments/",
-        "submissions":        "/assignments/sync/submissions/",
-        # Attendance
-        "attendance":         "/attendance/sync/",
-        # Communication
-        "announcements":      "/communication/sync/announcements/",
-        "results":            "/communication/sync/results/",
-        "notifications":      "/communication/sync/notifications/",
-        # Gamification
-        "achievements":       "/gamification/sync/achievements/",
-        "games":              "/gamification/sync/games/",
-        "multiplayer_games":  "/gamification/sync/multiplayer-games/",
-        "avatar_sounds":      "/gamification/sync/avatar-sounds/",
-        # Chat
-        "chats":              "/chat/sync/chats/",
-        "communications":     "/chat/sync/communications/",
-        "discussions":        "/chat/sync/discussions/",
-        "messages":           "/chat/sync/messages/",
-        # Modules
-        "fees":               "/modules/sync/fees/",
-        "subscriptions":      "/modules/sync/subscriptions/",
-        "cbt_exams":          "/modules/sync/cbt-exams/",
-        "practice_quizzes":   "/modules/sync/practice-quizzes/",
-        "mock_results":       "/modules/sync/mock-results/",
+        "users":           "/auth/sync/users/",
+        "students":        "/auth/sync/students/",
+        "teachers":        "/auth/sync/teachers/",
+        "parents":         "/auth/sync/parents/",
+        "schools":         "/academics/sync/schools/",
+        "classes":         "/academics/sync/classes/",
+        "subjects":        "/academics/sync/subjects/",
+        "topics":          "/academics/sync/topics/",
+        "assignments":     "/assignments/sync/assignments/",
+        "submissions":     "/assignments/sync/submissions/",
+        "attendance":      "/attendance/sync/",
+        "announcements":   "/communication/sync/announcements/",
+        "results":         "/communication/sync/results/",
+        "notifications":   "/communication/sync/notifications/",
+        "achievements":    "/gamification/sync/achievements/",
+        "games":           "/gamification/sync/games/",
+        "chats":           "/chat/sync/chats/",
+        "communications":  "/chat/sync/communications/",
+        "discussions":     "/chat/sync/discussions/",
+        "messages":        "/chat/sync/messages/",
+        "fees":            "/modules/sync/fees/",
+        "cbt_exams":       "/modules/sync/cbt-exams/",
+        "topic_progress":  "/progress/sync/topic-progress/",
+        "student_xp":      "/progress/sync/student-xp/",
     }
 
     # Write endpoints — for client → Django sync (kept for future use)

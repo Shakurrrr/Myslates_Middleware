@@ -78,11 +78,15 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_BEAT_SCHEDULE = {
     "poll-django-to-firestore": {
         "task":     "tasks.celery_tasks.poll_django_to_firestore",
-        "schedule": 300.0,   # every 5 minutes
+        "schedule": 300.0,    # every 5 minutes
+    },
+    "poll-firestore-to-django": {
+        "task":     "tasks.celery_tasks.poll_firestore_to_django",
+        "schedule": 600.0,    # every 10 minutes
     },
     "flush-pending-ops": {
         "task":     "tasks.celery_tasks.flush_pending_ops",
-        "schedule": 60.0,    # every 60 seconds
+        "schedule": 60.0,
     },
     "retry-dead-letter": {
         "task":     "tasks.celery_tasks.retry_dead_letter",
