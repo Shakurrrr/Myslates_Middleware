@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "queue_app",
     "engine",
     "api",
+    "tasks",
 ]
 
 MIDDLEWARE = [
